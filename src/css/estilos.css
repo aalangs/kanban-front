@@ -1,0 +1,53 @@
+.title{
+    color: #2A4E83;
+    text-align: center;
+    border-bottom: 2px solid;
+}
+
+th{
+    background-color: tomato;
+}
+
+.centrado{
+    flex-wrap: wrap;
+    align-self: center;
+    align-content: center;
+    direction: row;
+    align-items: center;
+justify-content: center;
+}
+
+body::-webkit-scrollbar {
+    width: 0.5rem;
+  }
+  
+  body::-webkit-scrollbar-track {
+    background: #1e1122;
+  }
+  
+  body::-webkit-scrollbar-thumb {
+    background: #009574;
+  }
+
+  .my-sticky-header-table{
+  /* height or max-height is important */
+  height: 310px
+  }
+  .q-table__top,
+  thead tr:first-child th{
+    /* bg color is important for th; just specify one */
+    background-color: #002e60;
+    color: #FFFFFF;
+}
+  thead tr th{
+    position: sticky;
+    z-index: 1
+  }
+  thead tr:first-child th{
+    top: 0
+  }
+  /* this is when the loading indicator appears */
+  .q-table--loading thead tr:last-child th{
+    /* height of all previous header rows */
+    top: 48px
+  }
