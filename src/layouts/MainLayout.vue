@@ -10,7 +10,6 @@
           aria-label="Menu"
           @click="leftDrawerOpen = !leftDrawerOpen"
         />
-
         <q-toolbar-title>
           Proyecto Kanban
         </q-toolbar-title>
@@ -20,34 +19,34 @@
       <q-form class="q-gutter-md">
             <div class="row" style="justify-content: space-around;">
             <q-input
-              rounded outlined disable bg-color="white"
+              outlined disable bg-color="white"
               v-model="tproyecto"
               label="Proyecto"
             />
             <q-input
-              rounded outlined disable bg-color="white"
+              outlined disable bg-color="white"
               v-model="tclave"
               label="Clave"
             />
             <q-input
-              rounded outlined disable bg-color="white"
+              outlined disable bg-color="white"
               v-model="tproduct"
               label="Product Owner"
             />
             </div>
             <div class="row" style="justify-content: space-around;">
             <q-input
-              rounded outlined disable bg-color="white"
+              outlined disable bg-color="white"
               v-model="tscrum"
               label="Scrum Master"
             />
             <q-input
-              rounded outlined disable bg-color="white"
+              outlined disable bg-color="white"
               v-model="tstatus"
               label="Status"
             />
             <q-input
-              rounded outlined disable bg-color="white"
+              outlined disable bg-color="white"
               v-model="tfechastatus"
               label="Fecha status"
             />
@@ -95,7 +94,7 @@ const linksData = [
   {
     title: 'Proyecto',
     icon: 'school',
-    link: '/proyecto'
+    link: '/'
   },
   {
     title: 'Scrum Team',
@@ -111,11 +110,6 @@ const linksData = [
     title: 'Tablero Kanban',
     icon: 'record_voice_over',
     link: '/index'
-  },
-  {
-    title: 'Informes',
-    icon: 'rss_feed',
-    link: '/informes'
   }
 ]
 
@@ -125,19 +119,19 @@ export default {
   mounted () { this.consulta() },
   data () {
     return {
-      tproyecto: 'SISA',
-      tclave: 'SISA',
-      tscrum: 'Sin asignar',
-      tproduct: 'Sin asignar',
-      tstatus: 'Pendiente',
-      tfechastatus: '18/08/2020',
+      tproyecto: '',
+      tclave: '',
+      tscrum: '',
+      tproduct: '',
+      tstatus: '',
+      tfechastatus: '',
       leftDrawerOpen: false,
       essentialLinks: linksData
     }
   },
   methods: {
-    async consulta () {
-      var proyecto = await JSON.parse(localStorage.getItem('ProyectoSeleccionado'))
+    consulta () {
+      var proyecto = JSON.parse(localStorage.getItem('ProyectoSeleccionado'))
       console.log('Proyecto: ' + proyecto)
       this.tproyecto = proyecto.nombreProyeto
       this.tclave = proyecto.clave

@@ -62,10 +62,10 @@
               {{ props.row.miembro.nombre }} {{ props.row.miembro.primerApellido }} {{ props.row.miembro.segundoApellido }}
             </q-td>
             <q-td>
-              <q-btn unelevated size="sm" color="primary" @click.native="rellenarFormulario(props.row)">Editar</q-btn>
+              <q-btn unelevated size="sm" color="primary" @click.native="rellenarFormulario(props.row)"><font-awesome-icon icon="edit" /></q-btn>
             </q-td>
             <q-td>
-              <q-btn unelevated size="sm" style="background-color:red; color:white" @click.native="eliminarProduct(props.row)">Eliminar</q-btn>
+              <q-btn unelevated size="sm" style="background-color:red; color:white" @click.native="eliminarProduct(props.row)"><font-awesome-icon icon="trash" /></q-btn>
             </q-td>
           </q-tr>
         </template>
@@ -123,7 +123,7 @@
       />
       <q-select filled v-model="modificarProductBacklog.prioridad.idPrioridad" map-options emit-value option-value="idPrioridad" option-label="prioridad" :options="prioridades" label="Prioridad" />
       <q-select filled v-model="modificarProductBacklog.miembro.clave" map-options emit-value option-value="clave" option-label="nombre" :options="desarrolladores" label="Desarollador" />
-      <q-select filled v-model="modificarProductBacklog.status.idStatus" map-options emit-value option-value="idStatus" option-label="status" :options="status" label="Status" />
+      <q-select filled v-model="modificarProductBacklog.status.idStatus" map-options emit-value option-value="idStatus" option-label="status" :options="statusModificar" label="Status" />
     </q-form>
 
         </q-card-section>
@@ -178,6 +178,7 @@ export default {
       data: [],
       desarrolladores: [],
       status: [],
+      statusModificar: [],
       prioridades: [],
       columns: [
         {
@@ -235,10 +236,12 @@ export default {
       api.getOne('/kanban/proyecto/one/' + this.proyectoSeleccionado.clave).then(response => {
         api.getAll('/kanban/prioridad/consulta/').then(response2 => {
           api.getAll('/kanban/status/consulta/').then(response3 => {
-            console.log('Product')
-            console.log(response.data.productBacklog)
+            response.data.members.forEach(element => {
+              if (element.rol.nombreRol !== 'Product Owner' && element.rol.nombreRol !== 'Scrum Master') {
+                this.desarrolladores.push(element)
+              }
+            })
             this.prioridades = response2.data
-            this.desarrolladores = this.proyectoSeleccionado.members
             this.status = response3.data
             this.data = response.data.productBacklog
           })
@@ -249,32 +252,35 @@ export default {
       api.crear('/kanban/product/guardar', this.nuevoProductBacklog).then(response => {
         console.log(response)
         this.proyectoSeleccionado.productBacklog.push(this.nuevoProductBacklog)
-        localStorage.clear()
-        localStorage.setItem('ProyectoSeleccionado', JSON.stringify(this.proyectoSeleccionado))
-        api.crear('/kanban/proyecto/guardar', this.proyectoSeleccionado).then(response => {
-          console.log(response)
-          this.modalRegistrarProduct = false
-          this.nuevoProductBacklog = []
-          this.consulta()
-        }).catch(error => {
-          console.log(error)
-        })
+        this.modificarStatusProyecto(this.proyectoSeleccionado)
+        this.modalRegistrarProduct = false
+        this.consulta()
       }).catch(error => {
         console.log(error)
       })
     },
     rellenarFormulario (modificarProductBacklog) {
+      this.statusModificar = this.status
+      if (modificarProductBacklog.status.idStatus === '2') {
+        this.statusModificar = [{ idStatus: '2', status: 'Seleccionado' }, { idStatus: '3', status: 'Proceso' }, { idStatus: '4', status: 'Terminado' }]
+      } else if (modificarProductBacklog.status.idStatus === '3') {
+        this.statusModificar = [{ idStatus: '3', status: 'Proceso' }, { idStatus: '4', status: 'Terminado' }]
+      } else if (modificarProductBacklog.status.idStatus === '4') {
+        this.statusModificar = [{ idStatus: '4', status: 'Terminado' }]
+      }
       this.modalActualizarProduct = true
       this.modificarProductBacklog = modificarProductBacklog
       console.log(this.modificarProductBacklog)
     },
     modificarProduct () {
       api.crear('/kanban/product/guardar', this.modificarProductBacklog).then(response => {
-        console.log(response)
-        localStorage.clear()
-        localStorage.setItem('ProyectoSeleccionado', JSON.stringify(this.proyectoSeleccionado))
-        this.modalActualizarProduct = false
-        this.consulta()
+        api.getOne('/kanban/proyecto/one/' + this.proyectoSeleccionado.clave).then(response => {
+          console.log(response.data)
+          this.proyectoSeleccionado = response.data
+          this.modificarStatusProyecto(this.proyectoSeleccionado)
+          this.modalActualizarProduct = false
+          this.consulta()
+        })
       }).catch(error => {
         console.log(error)
       })
@@ -301,6 +307,26 @@ export default {
         }).catch(error => {
           console.log(error)
         })
+      }).catch(error => {
+        console.log(error)
+      })
+    },
+    modificarStatusProyecto (proyecto) {
+      var terminados = 0
+      proyecto.productBacklog.forEach(element => {
+        if (element.status.idStatus === '4') {
+          terminados++
+        }
+      })
+      if (proyecto.productBacklog.length === terminados) {
+        proyecto.status.idStatus = '4'
+        proyecto.status.status = 'Terminado'
+      }
+      localStorage.clear()
+      localStorage.setItem('ProyectoSeleccionado', JSON.stringify(proyecto))
+      api.crear('/kanban/proyecto/guardar', proyecto).then(response => {
+        this.modalActualizarProduct = false
+        this.consulta()
       }).catch(error => {
         console.log(error)
       })

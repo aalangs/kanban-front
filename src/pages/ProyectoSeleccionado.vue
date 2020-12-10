@@ -32,7 +32,7 @@
             {{ props.row.status.status }}
           </q-td>
           <q-td>
-            <q-btn unelevated size="sm" color="secondary" @click.native="seleccionarProyecto(props.row)">Seleccionar</q-btn>
+            <q-btn unelevated size="sm" color="secondary" @click.native="seleccionarProyecto(props.row)"><font-awesome-icon icon="mouse-pointer" /></q-btn>
           </q-td>
         </q-tr>
       </template>
@@ -117,9 +117,10 @@ export default {
       })
     },
     seleccionarProyecto (proyecto) {
-      localStorage.removeItem('ProyectoSeleccionado')
+      this.$forceUpdate()
+      localStorage.clear()
       localStorage.setItem('ProyectoSeleccionado', JSON.stringify(proyecto))
-      this.$router.push({ name: 'ProyectoSeleccionado' })
+      this.$router.push({ path: '/proyecto/' + proyecto.clave })
     }
   }
 }

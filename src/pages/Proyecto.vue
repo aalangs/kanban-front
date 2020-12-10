@@ -32,13 +32,13 @@
             {{ props.row.status.status }}
           </q-td>
           <q-td>
-            <q-btn unelevated size="sm" color="primary" @click.native="rellenarModal(props.row)">Editar</q-btn>
+            <q-btn unelevated size="md" color="primary" @click.native="rellenarModal(props.row)"><font-awesome-icon icon="edit" /></q-btn>
           </q-td>
           <q-td>
-            <q-btn unelevated size="sm" style="background-color:red; color:white" @click.native="eliminarProyecto(props.row)">Eliminar</q-btn>
+            <q-btn unelevated size="md" style="background-color:red; color:white" @click.native="eliminarProyecto(props.row)"><font-awesome-icon icon="trash" /></q-btn>
           </q-td>
           <q-td>
-            <q-btn unelevated size="sm" color="secondary" @click.native="seleccionarProyecto(props.row)">Seleccionar</q-btn>
+            <q-btn unelevated size="md" color="secondary" @click.native="seleccionarProyecto(props.row)"><font-awesome-icon icon="mouse-pointer" /></q-btn>
           </q-td>
         </q-tr>
       </template>
@@ -86,11 +86,12 @@
 
         <q-card-actions align="right" class="bg-white text-teal">
           <q-btn label="Registrar" type="submit" color="primary" @click="registrarProyecto" />
-          <q-btn label="Cancelar" type="reset" color="negative" flat class="q-ml-sm" v-close-popup />        </q-card-actions>
+          <q-btn label="Cancelar" type="reset" color="negative" flat class="q-ml-sm" v-close-popup />
+        </q-card-actions>
       </q-card>
     </q-dialog>
 
-<q-dialog v-model="modalActualizarProyecto">
+    <q-dialog v-model="modalActualizarProyecto">
       <q-card style="width: 700px; max-width: 80vw;">
         <q-card-section>
           <div class="text-h6">Actualizar Proyecto</div>
@@ -104,12 +105,6 @@
               v-model='editProyecto.nombreProyeto'
               label="Nombre del proyecto"
               hint="Nombre del proyecto"
-            />
-            <q-input
-              filled
-              v-model="editProyecto.claveActualizar"
-              label="Clave"
-              hint="Clave"
             />
             <q-date
             v-model="editProyecto.fechaInicio"
@@ -139,7 +134,6 @@ export default {
   mounted () { this.consulta() },
   data () {
     return {
-      proyectoM: [],
       nuevoProyecto: {
         clave: null,
         nombreProyeto: null,
@@ -255,9 +249,15 @@ export default {
       })
     },
     registrarProyecto () {
-      this.modalRegistrarProyecto = 'false'
       api.crear('/kanban/proyecto/guardar', this.nuevoProyecto).then(response => {
         console.log(this.nuevoProyecto)
+        this.consulta()
+        this.modalRegistrarProyecto = 'false'
+        this.$swal.fire(
+          'Registro exitoso',
+          'El proyecto se ha registrado correctamente',
+          'success'
+        )
       }).catch(error => {
         console.log(error)
         console.log(this.nuevoProyecto)
@@ -265,39 +265,52 @@ export default {
     },
     rellenarModal (proyectoActualizar) {
       this.modalActualizarProyecto = true
-      this.editProyecto.nombreProyeto = proyectoActualizar.nombreProyeto
-      this.editProyecto.clave = proyectoActualizar.clave
-      this.editProyecto.fechaInicio = proyectoActualizar.fechaInicio
-      this.editProyecto.fechaFin = proyectoActualizar.fechaFin
+      this.editProyecto = proyectoActualizar
     },
     actualizarProyecto () {
-      api.getOne('/kanban/proyecto/one/' + this.editProyecto.clave).then(response => {
-        this.proyectoM = response.data
-        this.proyectoM.nombreProyeto = this.editProyecto.nombreProyeto
-        this.proyectoM.fechaInicio = this.editProyecto.fechaInicio
-        this.proyectoM.fechaFin = this.editProyecto.fechaFin
-        this.proyectoM.fechaStatus = new Date()
-        console.log(this.proyectoM)
-      })
-      api.crear('/kanban/proyecto/guardar', this.proyectoM).then(response => {
+      api.crear('/kanban/proyecto/guardar', this.editProyecto).then(response => {
         console.log(response)
-        console.log(this.proyectoM)
+        this.$swal.fire(
+          'Modificado',
+          'El proyecto se ha modificado correctamente',
+          'success'
+        )
+        this.consulta()
+        this.modalActualizarProyecto = false
       }).catch(error => {
         console.log(error)
-        console.log(this.proyectoM)
       })
     },
     eliminarProyecto (proyectoEliminar) {
-      api.eliminar('/kanban/proyecto/eliminar/' + proyectoEliminar.clave).then(response => {
-        console.log(response)
-      }).catch(error => {
-        console.log(error)
+      this.$swal.fire({
+        title: '¿Seguro que desea eliminar el proyecto?',
+        text: 'No podrá revertir estos cambios',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Si, borralo',
+        cancelButtonText: 'Cancelar'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          api.eliminar('/kanban/proyecto/eliminar/' + proyectoEliminar.clave).then(response => {
+            console.log(response)
+            this.$swal.fire(
+              'Eliminado',
+              'El proyecto se ha eliminado correctamente',
+              'success'
+            )
+            this.consulta()
+          }).catch(error => {
+            console.log(error)
+          })
+        }
       })
     },
     seleccionarProyecto (proyecto) {
-      localStorage.removeItem('ProyectoSeleccionado')
+      localStorage.clear()
       localStorage.setItem('ProyectoSeleccionado', JSON.stringify(proyecto))
-      this.$router.push({ name: 'ProyectoSeleccionado' })
+      this.$router.push({ path: '/proyecto/' + proyecto.clave })
     }
   }
 }

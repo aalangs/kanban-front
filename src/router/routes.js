@@ -1,15 +1,25 @@
 const routes = [
   {
     path: '/',
+    component: () => import('layouts/MainLayoutProyecto.vue'),
+    children: [
+      {
+        path: '/',
+        component: () => import('pages/Proyecto.vue')
+      },
+      {
+        path: '/informes',
+        component: () => import('pages/Informes.vue')
+      }
+    ]
+  },
+  {
+    path: '/',
     component: () => import('layouts/MainLayout.vue'),
     children: [
       {
         path: '/index',
         component: () => import('pages/Index.vue')
-      },
-      {
-        path: '/proyecto',
-        component: () => import('pages/Proyecto.vue')
       },
       {
         path: '/scrumTeam',
@@ -20,17 +30,11 @@ const routes = [
         component: () => import('pages/ProductBacklog.vue')
       },
       {
-        path: '/informes',
-        component: () => import('pages/Informes.vue')
-      },
-      {
-        path: '/proyectoSeleccionado',
-        name: 'ProyectoSeleccionado',
+        path: '/proyecto/:clave',
         component: () => import('pages/ProyectoSeleccionado.vue')
       }
     ]
   },
-
   // Always leave this as last one,
   // but you can also remove it
   {

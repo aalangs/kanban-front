@@ -33,10 +33,10 @@
             {{ props.row.rol.nombreRol }}
           </q-td>
           <q-td>
-            <q-btn unelevated size="sm" color="primary" @click.native="rellenarFormulario(props.row)">Editar</q-btn>
+            <q-btn unelevated size="sm" color="primary" @click.native="rellenarFormulario(props.row)"><font-awesome-icon icon="edit" /></q-btn>
           </q-td>
           <q-td>
-            <q-btn unelevated size="sm" style="background-color:red; color:white" @click.native="eliminarMiembro(props.row)">Eliminar</q-btn>
+            <q-btn unelevated size="sm" style="background-color:red; color:white" @click.native="eliminarMiembro(props.row)"><font-awesome-icon icon="trash" /></q-btn>
           </q-td>
         </q-tr>
       </template>

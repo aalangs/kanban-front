@@ -1,124 +1,77 @@
 <template>
-  <div class="q-pa-md" style="max-width: 1200px">
-    <div class="col-2 offset-xs-5" >
-      <h5 class="title">Proyecto</h5>
-    </div>
-    <div class="q-pa-md" style="max-width: 1200px">
-      <q-table
-      table-header-style="primary"
-        class="my-sticky-column-table"
-        :data="data"
-        :columns="columns"
-        row-key="name"
-      />
-    </div>
-    <div class="q-pa-md">
-        <q-btn label="Agregar proyecto" color="primary" @click="persistent = true" />
-
-    <q-dialog v-model="persistent" persistent transition-show="scale" transition-hide="scale">
-      <q-card style="width: 700px; max-width: 80vw;">
-        <q-card-section>
-          <div class="text-h6">Registra proyecto</div>
-        </q-card-section>
-        <q-card-section class="q-pt-none">
-          <q-form @submit="onSubmit" @reset="onReset" class="q-gutter-md">
-            <q-input
-              filled
-              v-model="clave"
-              label="Clave"
-              hint="Clave"
-            />
-            <q-input
-              filled
-              v-model="proyecto"
-              label="Nombre del proyecto"
-              hint="Nombre del proyecto"
-            />
-            <q-input
-              filled
-              v-model="fechaInicio"
-              label="Fecha Inicio"
-              hint="Fecha Inicio"
-            />
-            <q-input
-              filled
-              v-model="fechaFin"
-              label="Fecha Fin"
-              hint="Fecha Fin"
-            />
-            <q-select filled v-model="status" :options="opcionStatus" label="Status" />
-          </q-form>
-        </q-card-section>
-
-        <q-card-actions align="right" class="bg-white text-teal">
-          <q-btn label="Registrar" type="submit" color="primary" @click="persistentUno = true" />
-          <q-btn label="Cancelar" type="reset" color="primary" flat class="q-ml-sm" v-close-popup />
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
-    </div>
-    <div class="q-pa-md">
-    <q-btn label="Editar proyecto" color="primary" @click="persistentDos = true" id=""/>
-
-    <q-dialog v-model="persistentDos" persistent transition-show="scale" transition-hide="scale">
-      <q-card style="width: 700px; max-width: 80vw;">
-        <q-card-section>
-          <div class="text-h6">Editar Proyecto</div>
-        </q-card-section>
-
-        <q-card-section class="q-pt-none">
-          <q-form @submit="onSubmit" @reset="onReset" class="q-gutter-md">
-            <q-input
-              filled
-              v-model="clave"
-              label="Clave"
-              hint="Clave"
-            />
-            <q-input
-              filled
-              v-model="proyecto"
-              label="Nombre del proyecto"
-              hint="Nombre del proyecto"
-            />
-            <q-input
-              filled
-              v-model="fechaInicio"
-              label="Fecha Inicio"
-              hint="Fecha Inicio"
-            />
-            <q-input
-              filled
-              v-model="fechaFin"
-              label="Fecha Fin"
-              hint="Fecha Fin"
-            />
-            <q-select filled v-model="status" :options="opcionStatus" label="Status" />
-
-          </q-form>
-        </q-card-section>
-
-        <q-card-actions align="right" class="bg-white text-teal">
-          <q-btn label="Registrar" type="submit" color="primary" @click="persistentDos = true" />
-          <q-btn label="Cancelar" type="reset" color="primary" flat class="q-ml-sm" v-close-popup />
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
-    </div>
+  <div class="row">
+      <div class="col-2 offset-xs-5" >
+        <h5 class="title">Tablero Kanban</h5>
+      </div>
+      <div class="q-pa-md col-12">
+        <q-table
+        table-header-style="primary"
+          class="my-sticky-column-table"
+          :data="data"
+          :columns="columns"
+          row-key="name"
+        >
+          <template v-slot:body="props">
+            <q-tr :props="props">
+              <q-td>
+                {{ props.rowIndex +=1 }}
+              </q-td>
+              <q-td>
+                {{ props.row.funcionalidad }}
+              </q-td>
+              <q-td>
+                <div v-if="props.row.prioridad.prioridad === 'Alta'">
+                  <q-btn dense color="red" round class="q-ml-sm">
+                  </q-btn>
+                </div>
+                <div v-else-if="props.row.prioridad.prioridad === 'Media'">
+                  <q-btn dense color="yellow" round class="q-ml-sm">
+                  </q-btn>
+                </div>
+                <div v-else-if="props.row.prioridad.prioridad === 'Baja'">
+                  <q-btn dense color="green" round class="q-ml-sm">
+                  </q-btn>
+                </div>
+              </q-td>
+              <q-td>
+                <div v-if="props.row.status.status === 'Pendiente'">
+                  <q-btn dense color="black" round class="q-ml-sm">
+                  </q-btn>
+                </div>
+                <div v-else-if="props.row.status.status === 'Seleccionado'">
+                  <q-btn dense color="red" round class="q-ml-sm">
+                  </q-btn>
+                </div>
+                <div v-else-if="props.row.status.status === 'Proceso'">
+                  <q-btn dense color="yellow" round class="q-ml-sm">
+                  </q-btn>
+                </div>
+                <div v-else-if="props.row.status.status === 'Terminado'">
+                  <q-btn dense color="green" round class="q-ml-sm">
+                  </q-btn>
+                </div>
+              </q-td>
+              <q-td>
+                {{ proyecto.fechaStatus }}
+              </q-td>
+              <q-td>
+                {{ props.row.miembro.nombre }} {{ props.row.miembro.primerApellido }} {{ props.row.miembro.segundoApellido }}
+              </q-td>
+            </q-tr>
+          </template>
+        </q-table>
+      </div>
   </div>
 </template>
 
 <script>
+import api from '../util/api'
 export default {
+  mounted () { this.consulta() },
   data () {
     return {
-      persistent: false,
-      persistentDos: false,
-      proyecto: null,
-      clave: null,
-      fechaInicio: null,
-      fechaFin: null,
-      status: null,
-      opcionStatus: ['Pendiente', 'Seleccionado', 'Proceso', 'Terminado'],
+      proyecto: JSON.parse(localStorage.getItem('ProyectoSeleccionado')),
+      data: [],
       columns: [
         {
           name: 'numero',
@@ -129,44 +82,50 @@ export default {
           sortable: true
         },
         {
-          name: 'clave',
+          name: 'productBacklog',
           align: 'left',
-          label: 'Clave',
-          field: 'clave',
+          label: 'Product Backlog',
+          field: 'product Backlog',
           sortable: true
         },
         {
-          name: 'nombre',
+          name: 'prioridad',
           align: 'left',
-          label: 'Nombre',
-          field: 'nombre',
+          label: 'Prioridad',
+          field: 'prioridad',
           sortable: true
         },
         {
-          name: 'actualizar',
+          name: 'status',
           align: 'left',
-          label: 'Actualizar',
-          field: 'actualizar',
+          label: 'Status',
+          field: 'status',
           sortable: true
-        }
-      ],
-      data: [
-        {
-          numero: 1,
-          clave: 'SICSE',
-          nombre: 'Ssitema de Examenes',
-          actualizar: ''
         },
         {
-          numero: 2,
-          clave: 'SOCSE',
-          nombre: 'Sistema Ordinarios',
-          actualizar: ''
+          name: 'fechaStatus',
+          align: 'left',
+          label: 'Fecha Status',
+          field: 'fechaStatus',
+          sortable: true
+        },
+        {
+          name: 'development',
+          align: 'left',
+          label: 'Development',
+          field: 'development',
+          sortable: true
         }
       ]
     }
   },
   methods: {
+    consulta () {
+      api.getOne('/kanban/proyecto/one/' + this.proyecto.clave).then(response => {
+        this.data = response.data.productBacklog
+        console.log(this.data)
+      })
+    },
     onReset () {
       this.proyecto = null
       this.clave = null

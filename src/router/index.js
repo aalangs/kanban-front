@@ -1,9 +1,21 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
+import VueSweetalert2 from 'vue-sweetalert2'
+import { library } from '@fortawesome/fontawesome-svg-core'
+import { faEdit, faTrash, faMousePointer } from '@fortawesome/free-solid-svg-icons'
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+
+library.add(faEdit)
+library.add(faTrash)
+library.add(faMousePointer)
+
+Vue.component('font-awesome-icon', FontAwesomeIcon)
 
 import routes from './routes'
+import 'sweetalert2/dist/sweetalert2.min.css'
 
 Vue.use(VueRouter)
+Vue.use(VueSweetalert2)
 
 /*
  * If not building with SSR mode, you can
