@@ -131,7 +131,7 @@
               hint="Apellido Materno"
             />
             </div>
-            <q-select filled v-model="memberActualizar.rol.idRol" option-value="idRol" option-label="nombreRol" :options="options" label="Rol" />
+            <q-select filled v-model="memberActualizar.rol.nombreRol" option-value="idRol" option-label="nombreRol" :options="optionsM" label="Rol" />
           </q-form>
 
         </q-card-section>
@@ -168,10 +168,12 @@ export default {
         primerApellido: null,
         segundoApellido: null,
         rol: {
-          idRol: null
+          idRol: null,
+          nombreRol: null
         }
       },
       options: [],
+      optionsM: [],
       columns: [
         {
           name: 'proyecto',
@@ -274,11 +276,20 @@ export default {
       api.crear('/kanban/member/guardar', this.nuevoMember).then(response => {
         console.log(response)
         this.proyecto.members.push(this.nuevoMember)
-        localStorage.clear()
-        localStorage.setItem('ProyectoSeleccionado', JSON.stringify(this.proyecto))
         api.crear('/kanban/proyecto/guardar', this.proyecto).then(response => {
-          console.log(response)
-          this.modalRegistrar = false
+          api.getOne('/kanban/proyecto/one/' + this.proyecto.clave).then(response => {
+            localStorage.clear()
+            localStorage.setItem('ProyectoSeleccionado', JSON.stringify(response.data))
+            this.proyecto = response.data
+            this.modalRegistrar = false
+            this.consulta()
+            this.onReset()
+            this.$swal.fire(
+              'Registro exitoso',
+              'El miembro se ha registrado correctamente',
+              'success'
+            )
+          })
         }).catch(error => {
           console.log(error)
         })
@@ -287,10 +298,22 @@ export default {
       })
     },
     modificarMiembro () {
+      this.memberActualizar.rol.idRol = this.memberActualizar.rol.nombreRol.idRol
+      this.memberActualizar.rol.nombreRol = this.memberActualizar.rol.nombreRol.nombreRol
       api.crear('/kanban/member/guardar', this.memberActualizar).then(response => {
-        console.log(response)
-        localStorage.clear()
-        localStorage.setItem('ProyectoSeleccionado', JSON.stringify(this.proyecto))
+        api.getOne('/kanban/proyecto/one/' + this.proyecto.clave).then(response => {
+          localStorage.clear()
+          localStorage.setItem('ProyectoSeleccionado', JSON.stringify(response.data))
+          this.proyecto = response.data
+          console.log('Proyecto actualizado')
+          console.log(response.data)
+          this.modalActualizar = false
+          this.$swal.fire(
+            'Modificado',
+            'El miembro ha sido modificado correctamente',
+            'success'
+          )
+        })
       }).catch(error => {
         console.log(error)
       })
@@ -310,7 +333,8 @@ export default {
       localStorage.setItem('ProyectoSeleccionado', JSON.stringify(this.proyecto))
       api.crear('/kanban/proyecto/guardar', this.proyecto).then(response => {
         api.eliminarObj('/kanban/member/eliminar', miembroEliminar).then(response => {
-          console.log(response)
+          console.log('Local')
+          console.log(this.proyecto)
         }).catch(error => {
           console.log(error)
         })
@@ -322,40 +346,38 @@ export default {
       this.modalActualizar = true
       this.memberActualizar = miembroModificar
       api.getAll('/kanban/rol/consulta').then(response => {
+        this.optionsM = response.data
         var contadorDev = 0
         if (this.proyecto.members.length >= 8) {
           console.log('NO')
         } else {
-          this.options = response.data
           this.proyecto.members.forEach(element => {
-            if (element.rol.idRol === '1') {
-              delete this.options[0]
+            if (element.rol.idRol === '1' && miembroModificar.rol.idRol !== '1') {
+              delete this.optionsM[0]
               console.log('Product Owner ya existe')
-            } else if (element.rol.idRol === '2') {
-              delete this.options[1]
+            } else if (element.rol.idRol === '2' && miembroModificar.rol.idRol !== '2') {
+              delete this.optionsM[1]
               console.log('Scrum Master ya existe')
             } else {
               if (element.rol.idRol === '3') {
                 contadorDev++
               }
               if (contadorDev === 6) {
-                delete this.options[2]
+                delete this.optionsM[2]
               } else {
-                this.options = response.data
+                this.optionsM = response.data
               }
             }
           })
         }
-        console.log(response.data)
       })
     },
     onReset () {
-      this.proyecto = null
-      this.clave = null
-      this.nombre = null
-      this.apellidoUno = null
-      this.apellidoDos = null
-      this.rol = null
+      this.nuevoMember.clave = null
+      this.nuevoMember.nombre = null
+      this.nuevoMember.primerApellido = null
+      this.nuevoMember.segundoApellido = null
+      this.nuevoMember.rol.idRol = null
       this.accept = false
     },
     onSubmit () {

@@ -1,5 +1,39 @@
 <template>
   <div class="row">
+    <div class="q-pa-md col-12">
+      <div class="row" style="justify-content: space-around;">
+      <q-input
+        outlined disable bg-color="white"
+        v-model="headerProyecto"
+        label="Proyecto"
+      />
+      <q-input
+        outlined disable bg-color="white"
+        v-model="headerClave"
+        label="Clave"
+      />
+      <q-input
+        outlined disable bg-color="white"
+        v-model="headerProduct"
+        label="Product Owner"
+      />
+      <q-input
+        outlined disable bg-color="white"
+        v-model="headerScrum"
+        label="Scrum Master"
+      />
+      <q-input
+        outlined disable bg-color="white"
+        v-model="headerStatus"
+        label="Status"
+      />
+      <q-input
+        outlined disable bg-color="white"
+        v-model="headerFechaStatus"
+        label="Fecha status"
+      />
+      </div>
+  </div>
     <div class="col-2 offset-xs-5">
       <h5 class="title">Proyectos</h5>
     </div>
@@ -40,7 +74,7 @@
     </div>
 
     <div class="q-pa-md col-12">
-      <q-btn label="Registrar" type="submit" color="primary" style="margin:10px" @click="modalRegistrarProyecto = true" />
+      <!--<q-btn label="Registrar" type="submit" color="primary" style="margin:10px" @click="modalRegistrarProyecto = true" />-->
       <!--<q-btn label="Editar" type="submit" color="info" @click="modalActualizarProyecto = true" />
       <q-btn label="CONSULTAR" type="submit" color="primary" style="margin:10px" @click="consulta" />-->
     </div>
@@ -54,6 +88,7 @@ export default {
   mounted () { this.consulta() },
   data () {
     return {
+      proyecto: JSON.parse(localStorage.getItem('ProyectoSeleccionado')),
       columns: [
         {
           name: 'proyecto',
@@ -106,7 +141,13 @@ export default {
           sortable: false
         }
       ],
-      data: []
+      data: [],
+      headerProyecto: '',
+      headerClave: '',
+      headerScrum: 'Sin asignar',
+      headerProduct: 'Sin asignar',
+      headerStatus: '',
+      headerFechaStatus: ''
     }
   },
   methods: {
@@ -114,10 +155,25 @@ export default {
       api.getAll('/kanban/proyecto/consulta').then(response => {
         this.data = response.data
         console.log(this.data)
+        this.cambiarDatosHeader(this.proyecto)
       })
     },
+    cambiarDatosHeader (proyecto) {
+      this.proyecto.members.forEach(element => {
+        if (element.rol.idRol === '1') {
+          this.headerProduct = element.nombre + ' ' + element.primerApellido + ' ' + element.segundoApellido
+        } else if (element.rol.idRol === '2') {
+          this.headerScrum = element.nombre + ' ' + element.primerApellido + ' ' + element.segundoApellido
+        }
+      })
+      this.headerProyecto = this.proyecto.nombreProyeto
+      this.headerClave = this.proyecto.clave
+      this.headerStatus = this.proyecto.status.status
+      this.headerFechaStatus = this.proyecto.fechaStatus
+    },
     seleccionarProyecto (proyecto) {
-      this.$forceUpdate()
+      console.log(proyecto)
+      this.cambiarDatosHeader(proyecto)
       localStorage.clear()
       localStorage.setItem('ProyectoSeleccionado', JSON.stringify(proyecto))
       this.$router.push({ path: '/proyecto/' + proyecto.clave })

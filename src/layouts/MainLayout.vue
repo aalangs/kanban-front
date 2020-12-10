@@ -16,7 +16,7 @@
         <q-space />
 
         <div class="q-pa-md col-6">
-      <q-form class="q-gutter-md">
+          <q-form class="q-gutter-md">
             <div class="row" style="justify-content: space-around;">
             <q-input
               outlined disable bg-color="white"
@@ -52,7 +52,7 @@
             />
             </div>
           </q-form>
-    </div>
+        </div>
       </q-toolbar>
     </q-header>
 
@@ -93,22 +93,22 @@ import '../css/estilos.css'
 const linksData = [
   {
     title: 'Proyecto',
-    icon: 'school',
+    icon: 'folder',
     link: '/'
   },
   {
     title: 'Scrum Team',
-    icon: 'code',
+    icon: 'group',
     link: '/scrumTeam'
   },
   {
     title: 'Product Backlog',
-    icon: 'chat',
+    icon: 'category',
     link: '/productBacklog'
   },
   {
     title: 'Tablero Kanban',
-    icon: 'record_voice_over',
+    icon: 'view_compact',
     link: '/index'
   }
 ]
@@ -121,8 +121,8 @@ export default {
     return {
       tproyecto: '',
       tclave: '',
-      tscrum: '',
-      tproduct: '',
+      tscrum: 'Sin asignar',
+      tproduct: 'Sin asignar',
       tstatus: '',
       tfechastatus: '',
       leftDrawerOpen: false,
@@ -133,6 +133,13 @@ export default {
     consulta () {
       var proyecto = JSON.parse(localStorage.getItem('ProyectoSeleccionado'))
       console.log('Proyecto: ' + proyecto)
+      proyecto.members.forEach(element => {
+        if (element.rol.idRol === '1') {
+          this.tproduct = element.nombre + ' ' + element.primerApellido + ' ' + element.segundoApellido
+        } else if (element.rol.idRol === '2') {
+          this.tscrum = element.nombre + ' ' + element.primerApellido + ' ' + element.segundoApellido
+        }
+      })
       this.tproyecto = proyecto.nombreProyeto
       this.tclave = proyecto.clave
       this.tstatus = proyecto.status.status

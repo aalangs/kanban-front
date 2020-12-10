@@ -55,12 +55,12 @@ import '../css/estilos.css'
 const linksData = [
   {
     title: 'Proyecto',
-    icon: 'school',
+    icon: 'folder',
     link: '/'
   },
   {
     title: 'Informes',
-    icon: 'rss_feed',
+    icon: 'description',
     link: '/informes'
   }
 ]

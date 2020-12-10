@@ -15,7 +15,7 @@
       row-key="name"
     >
       <template v-slot:body="props">
-          <q-tr :props="props">
+          <q-tr :props="props" style="text-align: center">
             <q-td>
               {{ props.row.clave }}
             </q-td>
@@ -45,7 +45,7 @@
               </div>
             </q-td>
             <q-td>
-              {{ porcentaje(props.row.productBacklog) }}
+              {{ porcentaje(props.row.productBacklog) + '%' }}
             </q-td>
             <q-td>
               <div v-if="props.row.members.length > 0">
@@ -76,7 +76,7 @@
     </q-table>
   </div>
   <div class="col-3 offset-xs-5">
-      <h5 class="title">Informe Tablero KANVAN</h5>
+      <h5 class="title">Informe Tablero KANBAN</h5>
     </div>
     <div class="q-pa-md col-12">
     <q-table
@@ -90,81 +90,69 @@
       row-key="name"
     >
     <template v-slot:body="props">
-          <q-tr :props="props">
+          <q-tr :props="props" style="text-align: center">
             <q-td>
               {{ props.row.clave }}
             </q-td>
             <q-td>
-              {{ props.row.funcionalidad }}
+              {{ props.row.productBacklog.length }}
             </q-td>
             <q-td>
-              <!--<div v-if="props.row.productBacklog.prioridad.prioridad === 'Alta'">
-                <q-badge color="red">
-                  {{ props.row.productBacklog.prioridad.prioridad }}
-                </q-badge>
-              </div>
-              <div v-else-if="props.row.productBacklog.prioridad.prioridad === 'Media'">
-                <q-badge color="yellow-9">
-                  {{ props.row.productBacklog.prioridad.prioridad }}
-                </q-badge>
-              </div>
-              <div v-else-if="props.row.productBacklog.prioridad.prioridad === 'Baja'">
-                <q-badge color="green">
-                  {{ props.row.productBacklog.prioridad.prioridad }}
-                </q-badge>
-              </div>-->
-            </q-td>
-            <q-td>
-              <div v-if="props.row.status.status === 'Pendiente'">
-                <q-badge color="black">
-                  {{ props.row.status.status }}
-                </q-badge>
-              </div>
-              <div v-else-if="props.row.status.status === 'Seleccionado'">
-                <q-badge color="red">
-                  {{ props.row.status.status }}
-                </q-badge>
-              </div>
-              <div v-else-if="props.row.status.status === 'Proceso'">
-                <q-badge color="yellow-9">
-                  {{ props.row.status.status }}
-                </q-badge>
-              </div>
-              <div v-else-if="props.row.status.status === 'Terminado'">
-                <q-badge color="green">
-                  {{ props.row.status.status }}
-                </q-badge>
-              </div>
-            </q-td>
-            <q-td>
-              <div v-if="props.row.status.status === 'Pendiente'">
-                <q-badge color="black">
-                  {{ props.row.status.status }}
-                </q-badge>
-              </div>
-              <div v-else-if="props.row.status.status === 'Seleccionado'">
-                <q-badge color="red">
-                  {{ props.row.status.status }}
-                </q-badge>
-              </div>
-              <div v-else-if="props.row.status.status === 'Proceso'">
-                <q-badge color="yellow-9">
-                  {{ props.row.status.status }}
-                </q-badge>
-              </div>
-              <div v-else-if="props.row.status.status === 'Terminado'">
-                <q-badge color="green">
-                  {{ props.row.status.status }}
-                </q-badge>
-              </div>
-            </q-td>
-            <q-td>
-              <div v-if="props.row.status.status === 'pk'">
-                {{ props.row.productBacklog.miembro.nombre }}
+              <div v-if="props.row.productBacklog.length > 0">
+                <q-btn dense color="red" round class="q-ml-sm" title="Alta">
+                  {{ getPrioridades(props.row.productBacklog)[0] }}
+                </q-btn>
+                <q-btn dense color="yellow-14" round class="q-ml-sm" title="Media">
+                  {{ getPrioridades(props.row.productBacklog)[1] }}
+                </q-btn>
+                <q-btn dense color="green" round class="q-ml-sm" title="Baja">
+                  {{ getPrioridades(props.row.productBacklog)[2] }}
+                </q-btn>
               </div>
               <div v-else>
-                {{ '' }}
+                <q-btn dense color="red" round class="q-ml-sm" title="Alta">
+                  {{ 0 }}
+                </q-btn>
+                <q-btn dense color="yellow-14" round class="q-ml-sm" title="Media">
+                  {{ 0 }}
+                </q-btn>
+                <q-btn dense color="green" round class="q-ml-sm" title="Baja">
+                  {{ 0 }}
+                </q-btn>
               </div>
+            </q-td>
+            <q-td>
+              <div v-if="props.row.productBacklog.length > 0">
+                <q-btn dense color="black" round class="q-ml-sm" title="Pendiente">
+                  {{ getStatus(props.row.productBacklog)[0] }}
+                </q-btn>
+                <q-btn dense color="red" round class="q-ml-sm" title="Seleccionado">
+                  {{ getStatus(props.row.productBacklog)[1] }}
+                </q-btn>
+                <q-btn dense color="yellow-14" round class="q-ml-sm" title="Proceso">
+                  {{ getStatus(props.row.productBacklog)[2] }}
+                </q-btn>
+                <q-btn dense color="green" round class="q-ml-sm" title="Terminado">
+                  {{ getStatus(props.row.productBacklog)[3] }}
+                </q-btn>
+              </div>
+              <div v-else>
+                <q-btn dense color="black" round class="q-ml-sm" title="Pendiente">
+                  {{ 0 }}
+                </q-btn>
+                <q-btn dense color="red" round class="q-ml-sm" title="Seleccionado">
+                  {{ 0 }}
+                </q-btn>
+                <q-btn dense color="yellow-14" round class="q-ml-sm" title="Proceso">
+                  {{ 0 }}
+                </q-btn>
+                <q-btn dense color="green" round class="q-ml-sm" title="Terminado">
+                  {{ 0 }}
+                </q-btn>
+              </div>
+            </q-td>
+            <q-td>
+              {{ porcentaje(props.row.productBacklog) + '%' }}
             </q-td>
           </q-tr>
         </template>
@@ -185,49 +173,49 @@ export default {
         {
           name: 'proyecto',
           label: 'Proyecto',
-          align: 'left',
+          align: 'center',
           field: row => row.proyecto,
           format: val => `${val}`,
           sortable: true
         },
         {
           name: 'productBacklog',
-          align: 'left',
+          align: 'center',
           label: 'Product Backlog',
           field: 'productBacklog',
           sortable: true
         },
         {
           name: 'Status',
-          align: 'left',
+          align: 'center',
           label: 'Status',
           field: 'status',
           sortable: true
         },
         {
           name: 'porcentaje',
-          align: 'left',
+          align: 'center',
           label: 'Porcentaje',
           field: 'porcentaje',
           sortable: true
         },
         {
           name: 'productOwner',
-          align: 'left',
+          align: 'center',
           label: 'Product Owner',
           field: 'productOwner',
           sortable: true
         },
         {
           name: 'scrumMaster',
-          align: 'left',
+          align: 'center',
           label: 'Scrum Master',
           field: 'scrumMaster',
           sortable: true
         },
         {
           name: 'development',
-          align: 'left',
+          align: 'center',
           label: 'Development',
           field: 'development',
           sortable: true
@@ -236,44 +224,36 @@ export default {
       data: [],
       columnsK: [
         {
-          name: 'num',
-          label: '#',
-          align: 'left',
-          field: row => row.num,
-          format: val => `${val}`,
-          sortable: true
-        },
-        {
           name: 'proyecto',
-          align: 'left',
+          align: 'center',
           label: 'Proyecto',
           field: 'proyecto',
           sortable: true
         },
         {
           name: 'productBacklog',
-          align: 'left',
+          align: 'center',
           label: 'Product Backlog',
           field: 'productBacklog',
           sortable: true
         },
         {
           name: 'prioridad',
-          align: 'left',
+          align: 'center',
           label: 'Prioridad',
           field: 'prioridad',
           sortable: true
         },
         {
           name: 'status',
-          align: 'left',
+          align: 'center',
           label: 'Status',
           field: 'status',
           sortable: true
         },
         {
           name: 'avance',
-          align: 'left',
+          align: 'center',
           label: 'Avance',
           field: 'avance',
           sortable: true
@@ -325,6 +305,39 @@ export default {
         }
       })
       return scrumMaster
+    },
+    getPrioridades (productBacklog) {
+      var altas = 0
+      var medias = 0
+      var bajas = 0
+      productBacklog.forEach(element => {
+        if (element.prioridad.idPrioridad === '1') {
+          altas++
+        } else if (element.prioridad.idPrioridad === '2') {
+          medias++
+        } else if (element.prioridad.idPrioridad === '3') {
+          bajas++
+        }
+      })
+      return Array.from([altas, medias, bajas])
+    },
+    getStatus (productBacklog) {
+      var pendientes = 0
+      var seleccionados = 0
+      var procesos = 0
+      var terminados = 0
+      productBacklog.forEach(element => {
+        if (element.status.idStatus === '1') {
+          pendientes++
+        } else if (element.status.idStatus === '2') {
+          seleccionados++
+        } else if (element.status.idStatus === '3') {
+          procesos++
+        } else if (element.status.idStatus === '4') {
+          terminados++
+        }
+      })
+      return Array.from([pendientes, seleccionados, procesos, terminados])
     }
   }
 }
