@@ -271,7 +271,7 @@ export default {
       api.crear('/kanban/proyecto/guardar', this.editProyecto).then(response => {
         console.log(response)
         this.$swal.fire(
-          'Modificado',
+          'Modificación exitosa',
           'El proyecto se ha modificado correctamente',
           'success'
         )
@@ -295,12 +295,12 @@ export default {
         if (result.isConfirmed) {
           api.eliminar('/kanban/proyecto/eliminar/' + proyectoEliminar.clave).then(response => {
             console.log(response)
+            this.consulta()
             this.$swal.fire(
               'Eliminado',
               'El proyecto se ha eliminado correctamente',
               'success'
             )
-            this.consulta()
           }).catch(error => {
             console.log(error)
           })

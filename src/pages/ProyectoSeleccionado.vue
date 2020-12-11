@@ -3,34 +3,41 @@
     <div class="q-pa-md col-12">
       <div class="row" style="justify-content: space-around;">
       <q-input
-        outlined disable bg-color="white"
+        readonly bg-color="white"
         v-model="headerProyecto"
         label="Proyecto"
+        label-color="blue"
+        title= "headerProyecto"
       />
       <q-input
-        outlined disable bg-color="white"
+        readonly bg-color="white"
         v-model="headerClave"
         label="Clave"
+        label-color="blue"
       />
       <q-input
-        outlined disable bg-color="white"
+        readonly bg-color="white"
         v-model="headerProduct"
         label="Product Owner"
+        label-color="blue"
       />
       <q-input
-        outlined disable bg-color="white"
+        readonly bg-color="white"
         v-model="headerScrum"
         label="Scrum Master"
+        label-color="blue"
       />
       <q-input
-        outlined disable bg-color="white"
+        readonly bg-color="white"
         v-model="headerStatus"
         label="Status"
+        label-color="blue"
       />
       <q-input
-        outlined disable bg-color="white"
+        readonly bg-color="white"
         v-model="headerFechaStatus"
         label="Fecha status"
+        label-color="blue"
       />
       </div>
   </div>
@@ -144,8 +151,8 @@ export default {
       data: [],
       headerProyecto: '',
       headerClave: '',
-      headerScrum: 'Sin asignar',
-      headerProduct: 'Sin asignar',
+      headerScrum: '',
+      headerProduct: '',
       headerStatus: '',
       headerFechaStatus: ''
     }
@@ -159,6 +166,8 @@ export default {
       })
     },
     cambiarDatosHeader (proyecto) {
+      this.headerProduct = 'Sin asignar'
+      this.headerScrum = 'Sin asignar'
       this.proyecto.members.forEach(element => {
         if (element.rol.idRol === '1') {
           this.headerProduct = element.nombre + ' ' + element.primerApellido + ' ' + element.segundoApellido
@@ -173,6 +182,7 @@ export default {
     },
     seleccionarProyecto (proyecto) {
       console.log(proyecto)
+      this.proyecto = proyecto
       this.cambiarDatosHeader(proyecto)
       localStorage.clear()
       localStorage.setItem('ProyectoSeleccionado', JSON.stringify(proyecto))

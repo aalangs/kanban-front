@@ -14,45 +14,6 @@
           Proyecto Kanban
         </q-toolbar-title>
         <q-space />
-
-        <div class="q-pa-md col-6">
-          <q-form class="q-gutter-md">
-            <div class="row" style="justify-content: space-around;">
-            <q-input
-              outlined disable bg-color="white"
-              v-model="tproyecto"
-              label="Proyecto"
-            />
-            <q-input
-              outlined disable bg-color="white"
-              v-model="tclave"
-              label="Clave"
-            />
-            <q-input
-              outlined disable bg-color="white"
-              v-model="tproduct"
-              label="Product Owner"
-            />
-            </div>
-            <div class="row" style="justify-content: space-around;">
-            <q-input
-              outlined disable bg-color="white"
-              v-model="tscrum"
-              label="Scrum Master"
-            />
-            <q-input
-              outlined disable bg-color="white"
-              v-model="tstatus"
-              label="Status"
-            />
-            <q-input
-              outlined disable bg-color="white"
-              v-model="tfechastatus"
-              label="Fecha status"
-            />
-            </div>
-          </q-form>
-        </div>
       </q-toolbar>
     </q-header>
 
@@ -116,34 +77,10 @@ const linksData = [
 export default {
   name: 'MainLayout',
   components: { EssentialLink },
-  mounted () { this.consulta() },
   data () {
     return {
-      tproyecto: '',
-      tclave: '',
-      tscrum: 'Sin asignar',
-      tproduct: 'Sin asignar',
-      tstatus: '',
-      tfechastatus: '',
       leftDrawerOpen: false,
       essentialLinks: linksData
-    }
-  },
-  methods: {
-    consulta () {
-      var proyecto = JSON.parse(localStorage.getItem('ProyectoSeleccionado'))
-      console.log('Proyecto: ' + proyecto)
-      proyecto.members.forEach(element => {
-        if (element.rol.idRol === '1') {
-          this.tproduct = element.nombre + ' ' + element.primerApellido + ' ' + element.segundoApellido
-        } else if (element.rol.idRol === '2') {
-          this.tscrum = element.nombre + ' ' + element.primerApellido + ' ' + element.segundoApellido
-        }
-      })
-      this.tproyecto = proyecto.nombreProyeto
-      this.tclave = proyecto.clave
-      this.tstatus = proyecto.status.status
-      this.tfechastatus = proyecto.fechaStatus
     }
   }
 }

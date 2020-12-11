@@ -1,6 +1,46 @@
 <template>
   <div class="row">
-
+    <div class="q-pa-md col-12">
+      <div class="row" style="justify-content: space-around;">
+      <q-input
+        readonly bg-color="white"
+        v-model="headerProyecto"
+        label="Proyecto"
+        label-color="blue"
+        title= "headerProyecto"
+      />
+      <q-input
+        readonly bg-color="white"
+        v-model="headerClave"
+        label="Clave"
+        label-color="blue"
+      />
+      <q-input
+        readonly bg-color="white"
+        v-model="headerProduct"
+        label="Product Owner"
+        label-color="blue"
+      />
+      <q-input
+        readonly bg-color="white"
+        v-model="headerScrum"
+        label="Scrum Master"
+        label-color="blue"
+      />
+      <q-input
+        readonly bg-color="white"
+        v-model="headerStatus"
+        label="Status"
+        label-color="blue"
+      />
+      <q-input
+        readonly bg-color="white"
+        v-model="headerFechaStatus"
+        label="Fecha status"
+        label-color="blue"
+      />
+      </div>
+    </div>
     <div class="col-2 offset-xs-5">
       <h5 class="title">Scrum Team</h5>
     </div>
@@ -234,6 +274,12 @@ export default {
         }
       ],
       data: [],
+      headerProyecto: '',
+      headerClave: '',
+      headerScrum: '',
+      headerProduct: '',
+      headerStatus: '',
+      headerFechaStatus: '',
       modalRegistrar: false,
       modalActualizar: false
     }
@@ -243,11 +289,12 @@ export default {
       this.claves = []
       api.getOne('/kanban/proyecto/one/' + this.proyecto.clave).then(response => {
         this.data = response.data.members
+        this.cambiarDatosHeader(response.data)
       })
       api.getAll('/kanban/rol/consulta').then(response => {
         var contadorDev = 0
         if (this.proyecto.members.length >= 8) {
-          console.log('NO')
+          console.log('No')
         } else {
           this.options = response.data
           this.proyecto.members.forEach(element => {
@@ -282,13 +329,13 @@ export default {
             localStorage.setItem('ProyectoSeleccionado', JSON.stringify(response.data))
             this.proyecto = response.data
             this.modalRegistrar = false
-            this.consulta()
             this.onReset()
             this.$swal.fire(
               'Registro exitoso',
               'El miembro se ha registrado correctamente',
               'success'
             )
+            this.consulta()
           })
         }).catch(error => {
           console.log(error)
@@ -305,41 +352,69 @@ export default {
           localStorage.clear()
           localStorage.setItem('ProyectoSeleccionado', JSON.stringify(response.data))
           this.proyecto = response.data
-          console.log('Proyecto actualizado')
-          console.log(response.data)
           this.modalActualizar = false
           this.$swal.fire(
-            'Modificado',
+            'Modificación exitosa',
             'El miembro ha sido modificado correctamente',
             'success'
           )
+          this.consulta()
         })
       }).catch(error => {
         console.log(error)
       })
     },
     eliminarMiembro (miembroEliminar) {
-      console.log(miembroEliminar)
-      var index = 0
-      this.proyecto.members.forEach(element => {
-        if (element.clave === miembroEliminar.clave) {
-          index = this.proyecto.members.indexOf(element)
-          if (index > -1) {
-            this.proyecto.members.splice(index, 1)
+      this.$swal.fire({
+        title: '¿Seguro que desea eliminar a este miembro?',
+        text: 'No podrá revertir estos cambios',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Sí, borrar',
+        cancelButtonText: 'Cancelar'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          var asignado = true
+          this.proyecto.productBacklog.forEach(element => {
+            if (element.miembro.clave === miembroEliminar.clave) {
+              asignado = false
+              this.$swal.fire(
+                'Imposible eliminar miembro',
+                'Este desarollador tiene un Product Backlog asignado',
+                'warning'
+              )
+            }
+          })
+          if (asignado) {
+            var index = 0
+            this.proyecto.members.forEach(element => {
+              if (element.clave === miembroEliminar.clave) {
+                index = this.proyecto.members.indexOf(element)
+                if (index > -1) {
+                  this.proyecto.members.splice(index, 1)
+                }
+              }
+            })
+            localStorage.clear()
+            localStorage.setItem('ProyectoSeleccionado', JSON.stringify(this.proyecto))
+            api.crear('/kanban/proyecto/guardar', this.proyecto).then(response => {
+              api.eliminarObj('/kanban/member/eliminar', miembroEliminar).then(response => {
+                this.$swal.fire(
+                  'Eliminado',
+                  'El miembro se ha eliminado correctamente',
+                  'success'
+                )
+                this.consulta()
+              }).catch(error => {
+                console.log(error)
+              })
+            }).catch(error => {
+              console.log(error)
+            })
           }
         }
-      })
-      localStorage.clear()
-      localStorage.setItem('ProyectoSeleccionado', JSON.stringify(this.proyecto))
-      api.crear('/kanban/proyecto/guardar', this.proyecto).then(response => {
-        api.eliminarObj('/kanban/member/eliminar', miembroEliminar).then(response => {
-          console.log('Local')
-          console.log(this.proyecto)
-        }).catch(error => {
-          console.log(error)
-        })
-      }).catch(error => {
-        console.log(error)
       })
     },
     rellenarFormulario (miembroModificar) {
@@ -371,6 +446,21 @@ export default {
           })
         }
       })
+    },
+    cambiarDatosHeader (proyecto) {
+      this.headerProduct = 'Sin asignar'
+      this.headerScrum = 'Sin asignar'
+      this.proyecto.members.forEach(element => {
+        if (element.rol.idRol === '1') {
+          this.headerProduct = element.nombre + ' ' + element.primerApellido + ' ' + element.segundoApellido
+        } else if (element.rol.idRol === '2') {
+          this.headerScrum = element.nombre + ' ' + element.primerApellido + ' ' + element.segundoApellido
+        }
+      })
+      this.headerProyecto = this.proyecto.nombreProyeto
+      this.headerClave = this.proyecto.clave
+      this.headerStatus = this.proyecto.status.status
+      this.headerFechaStatus = this.proyecto.fechaStatus
     },
     onReset () {
       this.nuevoMember.clave = null

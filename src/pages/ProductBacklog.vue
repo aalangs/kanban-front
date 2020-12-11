@@ -1,5 +1,46 @@
 <template>
   <div class="row">
+    <div class="q-pa-md col-12">
+      <div class="row" style="justify-content: space-around;">
+      <q-input
+        readonly bg-color="white"
+        v-model="headerProyecto"
+        label="Proyecto"
+        label-color="blue"
+        title= "headerProyecto"
+      />
+      <q-input
+        readonly bg-color="white"
+        v-model="headerClave"
+        label="Clave"
+        label-color="blue"
+      />
+      <q-input
+        readonly bg-color="white"
+        v-model="headerProduct"
+        label="Product Owner"
+        label-color="blue"
+      />
+      <q-input
+        readonly bg-color="white"
+        v-model="headerScrum"
+        label="Scrum Master"
+        label-color="blue"
+      />
+      <q-input
+        readonly bg-color="white"
+        v-model="headerStatus"
+        label="Status"
+        label-color="blue"
+      />
+      <q-input
+        readonly bg-color="white"
+        v-model="headerFechaStatus"
+        label="Fecha status"
+        label-color="blue"
+      />
+      </div>
+    </div>
     <div class="col-2 offset-xs-5" >
       <h5 class="title">Product Backlog</h5>
     </div>
@@ -95,7 +136,7 @@
       />
       <q-select filled v-model="nuevoProductBacklog.prioridad.idPrioridad" map-options emit-value option-value="idPrioridad" option-label="prioridad" :options="prioridades" label="Prioridad" />
       <q-select filled v-model="nuevoProductBacklog.miembro.clave" map-options emit-value option-value="clave" option-label="nombre" :options="desarrolladores" label="Desarollador" />
-      <q-select filled v-model="nuevoProductBacklog.status.idStatus" map-options emit-value option-value="idStatus" option-label="status" :options="status" label="Status" />
+      <!--<q-select filled v-model="nuevoProductBacklog.status.idStatus" map-options emit-value option-value="idStatus" option-label="status" :options="status" label="Status" />-->
     </q-form>
 
         </q-card-section>
@@ -159,7 +200,7 @@ export default {
           idPrioridad: null
         },
         status: {
-          idStatus: null
+          idStatus: '2'
         }
       },
       modificarProductBacklog: {
@@ -228,7 +269,13 @@ export default {
           label: 'Eliminar',
           field: 'eliminar'
         }
-      ]
+      ],
+      headerProyecto: '',
+      headerClave: '',
+      headerScrum: '',
+      headerProduct: '',
+      headerStatus: '',
+      headerFechaStatus: ''
     }
   },
   methods: {
@@ -244,16 +291,26 @@ export default {
             this.prioridades = response2.data
             this.status = response3.data
             this.data = response.data.productBacklog
+            this.cambiarDatosHeader(response.data)
           })
         })
       })
     },
     registrarProduct () {
+      if (this.proyectoSeleccionado.productBacklog.length === 0) {
+        this.proyectoSeleccionado.status.idStatus = '2'
+        this.proyectoSeleccionado.status.status = 'Seleccionado'
+      }
       api.crear('/kanban/product/guardar', this.nuevoProductBacklog).then(response => {
         console.log(response)
         this.proyectoSeleccionado.productBacklog.push(this.nuevoProductBacklog)
         this.modificarStatusProyecto(this.proyectoSeleccionado)
         this.modalRegistrarProduct = false
+        this.$swal.fire(
+          'Registro exitoso',
+          'El Product Backlog se ha registrado correctamente',
+          'success'
+        )
         this.consulta()
       }).catch(error => {
         console.log(error)
@@ -275,10 +332,14 @@ export default {
     modificarProduct () {
       api.crear('/kanban/product/guardar', this.modificarProductBacklog).then(response => {
         api.getOne('/kanban/proyecto/one/' + this.proyectoSeleccionado.clave).then(response => {
-          console.log(response.data)
           this.proyectoSeleccionado = response.data
           this.modificarStatusProyecto(this.proyectoSeleccionado)
           this.modalActualizarProduct = false
+          this.$swal.fire(
+            'Modificación exitosa',
+            'El Product Backlog se ha modificado correctamente',
+            'success'
+          )
           this.consulta()
         })
       }).catch(error => {
@@ -286,29 +347,49 @@ export default {
       })
     },
     eliminarProduct (productBacklogEliminar) {
-      console.log(this.proyectoSeleccionado.productBacklog)
-      var index = 0
-      this.proyectoSeleccionado.productBacklog.forEach(element => {
-        if (element.clave === productBacklogEliminar.clave) {
-          index = this.proyectoSeleccionado.productBacklog.indexOf(element)
-          if (index > -1) {
-            this.proyectoSeleccionado.productBacklog.splice(index, 1)
+      this.$swal.fire({
+        title: '¿Seguro que desea eliminar el Product Backlog?',
+        text: 'No podrá revertir estos cambios',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Sí, borrar',
+        cancelButtonText: 'Cancelar'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          var index = 0
+          this.proyectoSeleccionado.productBacklog.forEach(element => {
+            if (element.clave === productBacklogEliminar.clave) {
+              index = this.proyectoSeleccionado.productBacklog.indexOf(element)
+              if (index > -1) {
+                this.proyectoSeleccionado.productBacklog.splice(index, 1)
+              }
+            }
+          })
+          if (this.proyectoSeleccionado.productBacklog.length === 0) {
+            this.proyectoSeleccionado.status.idStatus = '1'
+            this.proyectoSeleccionado.status.status = 'Pendiente'
           }
+          localStorage.clear()
+          localStorage.setItem('ProyectoSeleccionado', JSON.stringify(this.proyectoSeleccionado))
+          api.crear('/kanban/proyecto/guardar', this.proyectoSeleccionado).then(response => {
+            api.eliminarObj('/kanban/product/eliminar', productBacklogEliminar).then(response => {
+              console.log(response)
+              this.$swal.fire(
+                'Eliminado',
+                'El Product Backlog se ha eliminado correctamente',
+                'success'
+              )
+              this.consulta()
+              this.onResetModificar()
+            }).catch(error => {
+              console.log(error)
+            })
+          }).catch(error => {
+            console.log(error)
+          })
         }
-      })
-      console.log('Index: ' + index)
-      localStorage.clear()
-      localStorage.setItem('ProyectoSeleccionado', JSON.stringify(this.proyectoSeleccionado))
-      api.crear('/kanban/proyecto/guardar', this.proyectoSeleccionado).then(response => {
-        api.eliminarObj('/kanban/product/eliminar', productBacklogEliminar).then(response => {
-          console.log(response)
-          this.consulta()
-          this.onResetModificar()
-        }).catch(error => {
-          console.log(error)
-        })
-      }).catch(error => {
-        console.log(error)
       })
     },
     modificarStatusProyecto (proyecto) {
@@ -321,6 +402,9 @@ export default {
       if (proyecto.productBacklog.length === terminados) {
         proyecto.status.idStatus = '4'
         proyecto.status.status = 'Terminado'
+      } else if (terminados === 1) {
+        proyecto.status.idStatus = '3'
+        proyecto.status.status = '1'
       }
       localStorage.clear()
       localStorage.setItem('ProyectoSeleccionado', JSON.stringify(proyecto))
@@ -331,12 +415,26 @@ export default {
         console.log(error)
       })
     },
+    cambiarDatosHeader (proyecto) {
+      this.headerProduct = 'Sin asignar'
+      this.headerScrum = 'Sin asignar'
+      proyecto.members.forEach(element => {
+        if (element.rol.idRol === '1') {
+          this.headerProduct = element.nombre + ' ' + element.primerApellido + ' ' + element.segundoApellido
+        } else if (element.rol.idRol === '2') {
+          this.headerScrum = element.nombre + ' ' + element.primerApellido + ' ' + element.segundoApellido
+        }
+      })
+      this.headerProyecto = proyecto.nombreProyeto
+      this.headerClave = proyecto.clave
+      this.headerStatus = proyecto.status.status
+      this.headerFechaStatus = proyecto.fechaStatus
+    },
     onReset () {
       this.nuevoProductBacklog.clave = null
       this.nuevoProductBacklog.funcionalidad = null
       this.nuevoProductBacklog.prioridad.idPrioridad = null
       this.nuevoProductBacklog.miembro.clave = null
-      this.nuevoProductBacklog.status.idStatus = null
       this.nuevoProductBacklog.accept = false
     },
     onResetModificar () {

@@ -1,5 +1,46 @@
 <template>
   <div class="row">
+    <div class="q-pa-md col-12">
+      <div class="row" style="justify-content: space-around;">
+      <q-input
+        readonly bg-color="white"
+        v-model="headerProyecto"
+        label="Proyecto"
+        label-color="blue"
+        title= "headerProyecto"
+      />
+      <q-input
+        readonly bg-color="white"
+        v-model="headerClave"
+        label="Clave"
+        label-color="blue"
+      />
+      <q-input
+        readonly bg-color="white"
+        v-model="headerProduct"
+        label="Product Owner"
+        label-color="blue"
+      />
+      <q-input
+        readonly bg-color="white"
+        v-model="headerScrum"
+        label="Scrum Master"
+        label-color="blue"
+      />
+      <q-input
+        readonly bg-color="white"
+        v-model="headerStatus"
+        label="Status"
+        label-color="blue"
+      />
+      <q-input
+        readonly bg-color="white"
+        v-model="headerFechaStatus"
+        label="Fecha status"
+        label-color="blue"
+      />
+      </div>
+    </div>
       <div class="col-2 offset-xs-5" >
         <h5 class="title">Tablero Kanban</h5>
       </div>
@@ -116,7 +157,13 @@ export default {
           field: 'development',
           sortable: true
         }
-      ]
+      ],
+      headerProyecto: '',
+      headerClave: '',
+      headerScrum: '',
+      headerProduct: '',
+      headerStatus: '',
+      headerFechaStatus: ''
     }
   },
   methods: {
@@ -124,7 +171,23 @@ export default {
       api.getOne('/kanban/proyecto/one/' + this.proyecto.clave).then(response => {
         this.data = response.data.productBacklog
         console.log(this.data)
+        this.cambiarDatosHeader(response.data)
       })
+    },
+    cambiarDatosHeader (proyecto) {
+      this.headerProduct = 'Sin asignar'
+      this.headerScrum = 'Sin asignar'
+      proyecto.members.forEach(element => {
+        if (element.rol.idRol === '1') {
+          this.headerProduct = element.nombre + ' ' + element.primerApellido + ' ' + element.segundoApellido
+        } else if (element.rol.idRol === '2') {
+          this.headerScrum = element.nombre + ' ' + element.primerApellido + ' ' + element.segundoApellido
+        }
+      })
+      this.headerProyecto = proyecto.nombreProyeto
+      this.headerClave = proyecto.clave
+      this.headerStatus = proyecto.status.status
+      this.headerFechaStatus = proyecto.fechaStatus
     },
     onReset () {
       this.proyecto = null
